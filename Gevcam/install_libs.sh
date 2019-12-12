@@ -36,7 +36,7 @@ apt-get install -y \
 
 
 apt-get install -y \
-	libX11-dev \
+	libx11-dev \
 	libxext-dev \
 	libgtk-3-dev \
 	libglade2-0 \
