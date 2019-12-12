@@ -1,40 +1,3 @@
-SOURCE_DIR=$(dirname "$0")
-patch -N /usr/local/cuda/include/cuda_gl_interop.h $SOURCE_DIR'/cuda_gl_interop.patch'
-
-cd /usr/lib/aarch64-linux-gnu/
-ln -sf tegra/libGL.so libGL.so
-cd -
-
-apt-get install -y \
-	cmake \
-	libavcodec-dev \
-	libavformat-dev \
-	libavutil-dev \
-	libeigen3-dev \
-	libglew-dev \
-	libgtk2.0-dev \
-	libgtk-3-dev \
-	libjasper-dev \
-	libjpeg-dev \
-	libpng12-dev \
-	libpostproc-dev \
-	libswscale-dev \
-	libtbb-dev \
-	libtiff5-dev \
-	libv4l-dev \
-	libxvidcore-dev \
-	libx264-dev \
-	qt5-default \
-	zlib1g-dev \
-	pkg-config
-
-
-
-apt-get install -y \
-	libgstreamer1.0-dev \
-	libgstreamer-plugins-base1.0-dev
-
-
 git clone https://github.com/opencv/opencv.git
 git clone https://github.com/opencv/opencv_contrib.git
 
@@ -49,7 +12,10 @@ ARCH_BIN=6.2
 
 cmake \
 	-D CMAKE_BUILD_TYPE=RELEASE \
+	-D CMAKE_BUILD_PREFIX=/usr/local \
 	-D WITH_CUDA=ON \
+        -D INSTALL_C_EXAMPLES=ON \
+        -D INSTALL_PYTHON_EXAMPLES=ON \
 	-D CUDA_ARCH_BIN=${ARCH_BIN} \
 	-D CUDA_ARCH_PTX="" \
 	-D ENABLE_FAST_MATH=ON \
@@ -59,9 +25,12 @@ cmake \
 	-D WITH_GSTREAMER=ON \
 	-D WITH_GSTREAMER_0_10=OFF \
 	-D WITH_QT=ON \
+	-D WITH_TBB=ON \
+	-D WITH_VTK=ON \
 	-D WITH_OPENGL=ON \
-	-D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules/ \
-	../
+	-D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules \
+        -D BUILD_EXAMPLES=ON ..
+	
 
 if [ $? -eq 0 ] ; then
 	echo "OpenCV CMake successful"
@@ -83,10 +52,11 @@ else
 fi
 
 
-
+make -j4
 
 make install
 
+sudo sh -c 'echo "usr/local/lib" >> /etc/ld.so.conf.d/opencv.conf'
 if [ $? -eq 0 ] ; then
 	echo "OpenCV make install successful"
 else
@@ -95,6 +65,15 @@ else
 fi
 
 ldconfig
+
+echo C libs:
+pkg-config --cflags opencv
+pkg-config --modversion opencv
+
+echo Python libs:
+find /usr/local/lib/ -type f -name "cv2*.so"
+python -c 'import cv2; print("python " + cv2.__version__)'
+python3 -c 'import cv2; print("python3 " + cv2.__version__)'
 
 cd ..
 cd ..
