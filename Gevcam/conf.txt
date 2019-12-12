@@ -32,11 +32,11 @@ OffsetY 424
 
 # ===========================================
 
-TriggerMode On
+TriggerMode Off
 #TriggerMode Off
 #transferTurboMode Off
 transferTurboMode Active
-AcquisitionFrameRate 5
+AcquisitionFrameRate 4
 #AcquisitionFrameRate 25
 
 
