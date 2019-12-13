@@ -1,5 +1,87 @@
+apt-get update
+apt-get upgrade
+#Install OS libraries
+apt-get remove x264 libx264-dev
+
+apt-get install -y build-essential checkinstall cmake pkg-config yasm
+apt-get install -y git gfortran
+apt-get install -y libjpeg8-dev libjasper-dev libpng12-dev
+
+apt-get install -y libtiff5-dev
+ 
+apt-get install -y \
+		libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev \
+		libxine2-dev libv4l-dev \
+		libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev \
+		qt5-default libgtk2.0-dev libtbb-dev \
+		libatlas-base-dev \
+		libfaac-dev libmp3lame-dev libtheora-dev \
+		libvorbis-dev libxvidcore-dev \
+		libopencore-amrnb-dev libopencore-amrwb-dev \
+		x264 v4l-utils libhdf5-serial-dev hdf5-tools \
+		pkg-config
+
+
+# Optional dependencies
+apt-get install -y \ 
+		libprotobuf-dev protobuf-compiler \
+		libgoogle-glog-dev libgflags-dev \
+		libgphoto2-dev libeigen3-dev libhdf5-dev doxygen \
+		pkg-config
+# Install Python libraries
+apt-get install -y python-dev python-pip python3-dev python3-pip python-setuptools pkg-config
+pip3 install -U "numpy < 1.17"
+
+
+-H pip2 install -U pip "numpy < 1.17"
+-H pip3 install -U pip "numpy < 1.17"
+
+# Install virtual environment
+pip2 install virtualenv virtualenvwrapper
+pip3 install virtualenv virtualenvwrapper
+echo "# Virtual Environment Wrapper"  >> ~/.bashrc
+echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bashrc
+source ~/.bashrc
+
+############ For Python 2 ############
+# create virtual environment
+mkvirtualenv facecourse-py2 -p python2
+workon facecourse-py2
+  
+# now install python libraries within this virtual environment
+pip install -y scipy matplotlib scikit-image scikit-learn ipython pkg-config
+  
+# quit virtual environment
+deactivate
+######################################
+  
+############ For Python 3 ############
+# create virtual environment
+mkvirtualenv facecourse-py3 -p python3
+workon facecourse-py3
+  
+# now install python libraries within this virtual environment
+pip install -y scipy matplotlib scikit-image scikit-learn ipython
+  
+# quit virtual environment
+deactivate
+######################################
+
+# FFMPEG
+add-apt-repository ppa:mc3man/trusty-media
+apt-get update
+apt-get install -y ffmpeg
+ffmpeg -version
+
+
 git clone https://github.com/opencv/opencv.git
+cd opencv
+git checkout 3.4.1
+cd ..
 git clone https://github.com/opencv/opencv_contrib.git
+cd opencv_contrib
+git checkout 3.3.1
+cd ..
 
 cd opencv
 mkdir build
@@ -42,10 +124,12 @@ else
 	exit 1
 fi
 
+# find out number of CPU cores in your machine
+nproc
+# substitute 4 by output of nproc
 
 
-
-make -j6
+make -j4
 
 if [ $? -eq 0 ] ; then
 	echo "OpenCV make successful"
@@ -55,11 +139,11 @@ else
 fi
 
 
-make -j4
+
 
 make install
 
-sudo sh -c 'echo "usr/local/lib" >> /etc/ld.so.conf.d/opencv.conf'
+sh -c 'echo "/usr/local/lib" >> /etc/ld.so.conf.d/opencv.conf'
 if [ $? -eq 0 ] ; then
 	echo "OpenCV make install successful"
 else
